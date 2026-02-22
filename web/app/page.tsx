@@ -1,19 +1,33 @@
+"use client";
+
 import { api } from "../lib/api";
 import AddWhaleForm from "./components/AddWhaleForm";
 import DeleteButton from "./components/DeleteButton";
 
-export default async function Home() {
-  const whales = await api.getWhales();
+export default function Home() {
+  const { whales, isLoading, mutate } = api.useWhales();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="text-cyan-400 animate-pulse font-mono">
+          Syncing with blockchain...
+        </div>
+      </div>
+    );
+  }
+
+  const whaleList = whales || [];
 
   return (
     <div className="min-h-screen p-4 md:p-8 lg:p-12 relative overflow-hidden">
-      {/* Декоративний градієнт на фоні (робить дизайн "дожчим") */}
+      {/* Decorative gradient on the background */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-cyan-500/20 blur-[120px] rounded-full pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-violet-500/20 blur-[120px] rounded-full pointer-events-none" />
 
       <main className="max-w-5xl mx-auto space-y-10 relative z-10">
         <header className="space-y-2">
-          {/* Градієнтний текст заголовка */}
+          {/* Gradient title text */}
           <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl text-transparent bg-clip-text bg-linear-to-r from-cyan-400 to-violet-500">
             Whale Tracker
           </h1>
@@ -23,7 +37,7 @@ export default async function Home() {
         </header>
 
         <section className="w-full">
-          <AddWhaleForm />
+          <AddWhaleForm onSuccess={() => mutate()} />
         </section>
 
         <section className="space-y-6">
@@ -32,11 +46,11 @@ export default async function Home() {
               Monitored Wallets
             </h2>
             <span className="bg-zinc-900 text-cyan-400 border border-zinc-800 px-3 py-1 rounded-full text-sm font-semibold shadow-[0_0_10px_rgba(34,211,238,0.1)]">
-              {whales.length} Total
+              {whaleList.length} Total
             </span>
           </div>
 
-          {whales.length === 0 ? (
+          {whaleList.length === 0 ? (
             <div className="text-center py-20 bg-zinc-900/50 rounded-2xl border border-zinc-800 border-dashed backdrop-blur-sm">
               <p className="text-zinc-500 text-lg">
                 No whales tracked yet. Add your first address above.
@@ -44,7 +58,7 @@ export default async function Home() {
             </div>
           ) : (
             <div className="grid gap-4 grid-cols-1">
-              {whales.map((whale) => (
+              {whaleList.map((whale) => (
                 <div
                   key={whale.id}
                   className="group p-5 bg-zinc-900/50 border border-zinc-800 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 backdrop-blur-md transition-all duration-300 hover:border-cyan-500/50 hover:shadow-[0_0_20px_rgba(34,211,238,0.1)]"
@@ -67,7 +81,11 @@ export default async function Home() {
                   </div>
 
                   <div className="flex items-center self-end sm:self-center">
-                    <DeleteButton id={whale.id} label={whale.label} />
+                    <DeleteButton
+                      id={whale.id}
+                      label={whale.label}
+                      onDelete={() => mutate()}
+                    />
                   </div>
                 </div>
               ))}

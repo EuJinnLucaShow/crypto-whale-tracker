@@ -1,15 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 
-export default function AddWhaleForm() {
+interface AddWhaleFormProps {
+  onSuccess: () => void;
+}
+
+export default function AddWhaleForm({
+  onSuccess,
+}: Readonly<AddWhaleFormProps>) {
   const [address, setAddress] = useState("");
   const [label, setLabel] = useState("");
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
@@ -20,7 +24,7 @@ export default function AddWhaleForm() {
       toast.success("Whale added successfully!");
       setAddress("");
       setLabel("");
-      router.refresh();
+      onSuccess();
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Error adding whale";
       toast.error(msg);
@@ -71,7 +75,7 @@ export default function AddWhaleForm() {
       <button
         type="submit"
         disabled={loading}
-        className="cursor-pointer w-full md:w-auto px-8 py-3 bg-cyan-500 text-zinc-950 font-bold rounded-xl hover:bg-cyan-400 active:scale-95 transition-all disabled:opacity-50 shadow-[0_0_15px_rgba(34,211,238,0.2)] hover:shadow-[0_0_25px_rgba(34,211,238,0.4)]"
+        className="cursor-pointer w-full md:w-auto px-8 py-3 bg-cyan-500/10 border border-cyan-500/50 text-cyan-400 font-bold rounded-xl hover:bg-cyan-500 hover:text-black hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] transition-all duration-300 disabled:opacity-50"
       >
         {loading ? "Processing..." : "Track Wallet"}
       </button>

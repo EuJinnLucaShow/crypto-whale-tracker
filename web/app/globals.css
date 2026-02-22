@@ -1,1 +1,124 @@
 @import "tailwindcss";
+
+@theme {
+  --color-background: #09090b;
+  --color-card: rgba(17, 17, 19, 0.8);
+}
+
+body {
+  background-color: var(--color-background);
+  color: #fafafa;
+}
+
+html body [data-sonner-toast] {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  background: rgba(9, 9, 11, 0.95) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(39, 39, 42, 0.8) !important;
+  padding: 20px !important;
+  border-radius: 16px !important;
+  width: min(380px, calc(100vw - 24px)) !important;
+  max-width: calc(100vw - 24px) !important;
+  box-sizing: border-box !important;
+  gap: 12px !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6) !important;
+}
+
+@media (max-width: 480px) {
+  html body [data-sonner-toast] {
+    padding: 14px !important;
+    border-radius: 14px !important;
+    gap: 10px !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+  }
+
+  html body [data-sonner-toast] [data-title] {
+    font-size: 1rem !important;
+    line-height: 1.2 !important;
+  }
+
+  html body [data-sonner-toast] [data-description] {
+    font-size: 0.9rem !important;
+    line-height: 1.25 !important;
+  }
+
+  html body [data-sonner-toast] button[data-button="true"] {
+    height: 34px !important;
+    font-size: 12.5px !important;
+    border-radius: 8px !important;
+    padding: 0 12px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  html body [data-sonner-toast] button[data-button="true"] {
+    flex-basis: 100% !important;
+  }
+}
+
+html body [data-sonner-toast] [data-content] {
+  flex-basis: 100% !important;
+  margin-bottom: 8px !important;
+}
+
+html body [data-sonner-toast] [data-title] {
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  color: #fff !important;
+  margin-bottom: 4px !important;
+}
+
+html body [data-sonner-toast] [data-description] {
+  color: #a1a1aa !important;
+  font-size: 0.95rem !important;
+}
+
+html body [data-sonner-toast] button[data-button="true"] {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+
+  height: 36px !important;
+  font-size: 13px !important;
+  border-radius: 9px !important;
+  padding: 0 12px !important;
+
+  font-weight: 600 !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  border: 1px solid transparent !important;
+  margin: 0 !important;
+}
+
+html body [data-sonner-toast] [data-action="true"] {
+  background: rgba(225, 29, 72, 0.1) !important;
+  border-color: rgba(225, 29, 72, 0.4) !important;
+  color: #fb7185 !important;
+  order: 2 !important;
+}
+
+html body [data-sonner-toast] [data-action="true"]:hover {
+  background: #e11d48 !important;
+  color: white !important;
+  box-shadow: 0 0 15px rgba(225, 29, 72, 0.4) !important;
+}
+
+html body [data-sonner-toast] [data-cancel="true"] {
+  background: rgba(34, 211, 238, 0.1) !important;
+  border-color: rgba(34, 211, 238, 0.4) !important;
+  color: #22d3ee !important;
+  order: 1 !important;
+}
+
+html body [data-sonner-toast] [data-cancel="true"]:hover {
+  background: #0891b2 !important;
+  color: white !important;
+}

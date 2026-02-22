@@ -2,35 +2,55 @@
 
 import { useState } from "react";
 import { api } from "@/lib/api";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { wrapAsync } from "@/lib/utils";
+
+interface DeleteButtonProps {
+  id: number;
+  label: string;
+  onDelete: () => void;
+}
 
 export default function DeleteButton({
   id,
   label,
-}: Readonly<{
-  id: number;
-  label: string;
-}>) {
+  onDelete,
+}: Readonly<DeleteButtonProps>) {
   const [isDeleting, setIsDeleting] = useState(false);
-  const router = useRouter();
 
-  const handleDelete = async () => {
+  const performDelete = async () => {
     setIsDeleting(true);
     try {
       await api.deleteWhale(id);
+      onDelete();
       toast.success(`Removed ${label} from tracking`);
-      router.refresh();
     } catch (err) {
-      toast.error("Failed to delete");
+      console.error(`[Delete Error]: Failed to remove ${id}`, err);
+      const message = err instanceof Error ? err.message : "Failed to delete";
+      toast.error(message);
     } finally {
       setIsDeleting(false);
     }
   };
 
+  const handleDeleteClick = () => {
+    toast("Confirm deletion!", {
+      description: `Do you want to stop tracking ${label}?`,
+      action: {
+        label: "Delete",
+        onClick: wrapAsync(performDelete),
+      },
+      cancel: {
+        label: "Cancel",
+        onClick: () => {},
+      },
+      duration: 5000,
+    });
+  };
+
   return (
     <button
-      onClick={handleDelete}
+      onClick={handleDeleteClick}
       disabled={isDeleting}
       className="cursor-pointer p-2 text-zinc-600 rounded-lg hover:bg-rose-500/10 hover:text-rose-400 transition-all disabled:opacity-50"
     >
