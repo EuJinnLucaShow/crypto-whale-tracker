@@ -1,4 +1,5 @@
 import { ConflictException, Injectable, Logger } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { CreateWhaleDto } from './dto/create-whale.dto';
 import { UpdateWhaleDto } from './dto/update-whale.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -11,6 +12,28 @@ export class WhalesService {
     private readonly prisma: PrismaService,
     private readonly web3: Web3Service,
   ) {}
+
+  @Cron(CronExpression.EVERY_30_MINUTES)
+  async handleCron() {
+    this.logger.debug('Starting scheduled balance update for all whales...');
+
+    const whales = await this.prisma.monitored_wallets.findMany();
+
+    for (const whale of whales) {
+      const newBalance = await this.web3.getEthBalance(whale.address);
+
+      if (newBalance !== null) {
+        await this.prisma.monitored_wallets.update({
+          where: { id: whale.id },
+          data: { balance: newBalance },
+        });
+        this.logger.log(
+          `Updated: ${whale.label || whale.address} -> ${newBalance} ETH`,
+        );
+      }
+    }
+    this.logger.debug('Balance update task finished.');
+  }
 
   async create(createWhaleDto: CreateWhaleDto) {
     const { address, label } = createWhaleDto;
