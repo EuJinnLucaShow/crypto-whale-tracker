@@ -5,12 +5,14 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model monitored_wallets {
   id         Int       @id @default(autoincrement())
   address    String    @unique @db.VarChar(42)
   label      String?   @db.VarChar(100)
+  balance    String?
   created_at DateTime? @default(now()) @db.Timestamptz(6)
 }
 
