@@ -29,7 +29,7 @@ export default function Home() {
         <header className="space-y-2">
           {/* Gradient title text */}
           <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl text-transparent bg-clip-text bg-linear-to-r from-cyan-400 to-violet-500">
-            Whale Tracker
+            Crypto Whale Tracker
           </h1>
           <p className="text-zinc-400 text-lg">
             Monitoring high-value crypto wallets in real-time.
