@@ -4,6 +4,7 @@ export interface Whale {
   id: number;
   address: string;
   label: string;
+  balance?: string | null;
   created_at: string;
 }
 
@@ -31,5 +32,17 @@ export const api = {
     }
 
     return data;
+  },
+
+  deleteWhale: async (id: number) => {
+    const res = await fetch(`${API_URL}/whales/${id}`, {
+      method: "DELETE",
+    });
+
+    if (!res.ok) {
+      throw new Error("Не вдалося видалити запис");
+    }
+
+    return true;
   },
 };
