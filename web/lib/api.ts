@@ -7,6 +7,7 @@ export interface Whale {
   address: string;
   label: string;
   balance?: string | null;
+  usdt_balance?: string | null;
   created_at: string;
 }
 

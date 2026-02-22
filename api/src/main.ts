@@ -6,7 +6,7 @@ import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter'
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: [process.env.FRONTEND_URL, 'http://localhost:3001'].filter(Boolean),
+    origin: [process.env.FRONTEND_URL, 'http://localhost:3000'].filter(Boolean),
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
@@ -19,6 +19,6 @@ async function bootstrap() {
   );
   app.useGlobalFilters(new PrismaExceptionFilter());
   app.enableShutdownHooks();
-  await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
+  await app.listen(process.env.PORT ?? 3001, '0.0.0.0');
 }
 bootstrap();

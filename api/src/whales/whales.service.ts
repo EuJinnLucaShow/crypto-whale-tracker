@@ -8,6 +8,7 @@ import { Web3Service } from '../web3/web3.service';
 @Injectable()
 export class WhalesService {
   private readonly logger = new Logger(WhalesService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly web3: Web3Service,
@@ -15,23 +16,41 @@ export class WhalesService {
 
   @Cron(CronExpression.EVERY_30_MINUTES)
   async handleCron() {
-    this.logger.debug('Starting scheduled balance update for all whales...');
+    this.logger.debug(
+      'Starting scheduled Multicall balance update for all whales...',
+    );
 
     const whales = await this.prisma.monitored_wallets.findMany();
 
-    for (const whale of whales) {
-      const newBalance = await this.web3.getEthBalance(whale.address);
+    const CHUNK_SIZE = 500;
 
-      if (newBalance !== null) {
-        await this.prisma.monitored_wallets.update({
-          where: { id: whale.id },
-          data: { balance: newBalance },
-        });
-        this.logger.log(
-          `Updated: ${whale.label || whale.address} -> ${newBalance} ETH`,
-        );
-      }
+    for (let i = 0; i < whales.length; i += CHUNK_SIZE) {
+      const batch = whales.slice(i, i + CHUNK_SIZE);
+      const addresses = batch.map((w) => w.address);
+
+      const balancesMap = await this.web3.getBalancesMulticall(addresses);
+
+      await Promise.allSettled(
+        batch.map(async (whale) => {
+          const newBalances = balancesMap[whale.address];
+
+          if (newBalances && newBalances.eth !== whale.balance) {
+            await this.prisma.monitored_wallets.update({
+              where: { id: whale.id },
+              data: {
+                balance: newBalances.eth,
+                usdt_balance: newBalances.usdt,
+              },
+            });
+
+            this.logger.log(
+              `Updated: ${whale.label || whale.address} -> ETH: ${newBalances.eth}, USDT: ${newBalances.usdt}`,
+            );
+          }
+        }),
+      );
     }
+
     this.logger.debug('Balance update task finished.');
   }
 
@@ -46,13 +65,15 @@ export class WhalesService {
       throw new ConflictException('A whale with this address already exists');
     }
 
-    const balance = await this.web3.getEthBalance(address);
+    const balancesMap = await this.web3.getBalancesMulticall([address]);
+    const initialBalances = balancesMap[address] || { eth: '0', usdt: '0' };
 
     return this.prisma.monitored_wallets.create({
       data: {
         address,
         label,
-        balance,
+        balance: initialBalances.eth,
+        usdt_balance: initialBalances.usdt,
       },
     });
   }
