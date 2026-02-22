@@ -1,8 +1,9 @@
 # Stage 1: Build
+# Ми використовуємо конкретну версію з тегом 'latest-dev', але фіксуємо її версією 20
 FROM cgr.dev/chainguard/node:20-dev AS builder
 WORKDIR /app
 
-# Chainguard-dev includes npm/build tools but runs as root during build
+# Перемикаємось на root для встановлення системних пакетів
 USER root
 RUN apk add --no-cache openssl
 USER node
@@ -16,6 +17,7 @@ RUN npm run build
 RUN npm prune --production
 
 # Stage 2: Runtime
+# Фіксуємо версію 20 для рантайму
 FROM cgr.dev/chainguard/node:20
 WORKDIR /app
 
